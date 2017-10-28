@@ -9,4 +9,17 @@ public class Game {
 	public void startGame() {
 		
 	}
+	
+}
+
+public class peices() {
+	
+}
+
+public class Board() {
+	
+}
+
+public class Scoreboard() {
+	
 }
