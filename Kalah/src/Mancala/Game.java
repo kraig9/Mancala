@@ -34,19 +34,9 @@ class Peices {
 class Board {
 	public enum Hole{
 		//player one's holes and pit
-		one,
-		two,
-		three,
-		four,
-		five,
-		six,
+		one,two,three,four,five,six,
 		//player two's holes and pit
-		seven,
-		eight,
-		nine,
-		ten,
-		eleven,
-		twelve;
+		seven,eight,nine,ten,eleven,twelve;
 		
 		//start with 4 marbles in each hole
 		public static final int START_MARBLES = 4;
