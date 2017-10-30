@@ -37,11 +37,22 @@ public class Board {
 		holes.add(holeTwo);
 	}
 	
+	public static void nextMove(GameState gameState){
+		if(gameState.getMoveAgain() == 0){
+			if(gameState.getCurrentMove() == 1){
+				gameState.setCurrentMove(2);
+			}
+			else{
+				gameState.setCurrentMove(1);
+			}
+		}
+	}
+	
 	//this function is called whenever a player attempts to move a piece
 	//holeNumber refers to the hole that has the pieces the player is trying to move
 	//playerMakingMove refers to the player who is moving the pieces
 	//return true for valid move, false for invalid move
-	public static boolean movePieces (GameState gameState, Vector<HoleClass> holes, int holeNumber, int playerMakingMove){
+	public static boolean movePieces (GameState gameState, Vector<HoleClass> holes, int holeNumber){
 		HoleClass selectedHole = new HoleClass();
 		
 		//grabs the hole selected by the user and assigns it to selectedHole
@@ -54,7 +65,7 @@ public class Board {
 		}
 		
 		//if the player does not control the selected hole, the move is invalid
-		if(selectedHole.getSide() != playerMakingMove){
+		if(selectedHole.getSide() != gameState.getCurrentMove()){
 			System.out.println("Must make a move on the current player's side of the board");
 			return false;
 		}
@@ -92,9 +103,17 @@ public class Board {
 			int piecesInCurrentHole = holes.get(currentHole).getNumPieces();
 			
 			//adds a piece to the next hole in the sequence as long as it is not the opponents store
-			if((holes.get(currentHole).getStore() != 1) || (holes.get(currentHole).getSide() == playerMakingMove)){
+			if((holes.get(currentHole).getStore() != 1) || (holes.get(currentHole).getSide() == gameState.getCurrentMove())){
 				//add one piece to the current hole
 				holes.get(currentHole).setNumPieces(piecesInCurrentHole + 1);
+				
+				//if the last piece goes into the player's store they get to move again
+				if(holes.get(currentHole).getStore() == 1){
+					gameState.setMoveAgain(1);
+				}
+				else{
+					gameState.setMoveAgain(0);
+				}
 				
 				//subtract 1 from our counter whenever a piece is added to a hole
 				piecesInSelectedHole--;
@@ -124,9 +143,18 @@ public class Board {
 			System.out.print(" ");
 		}
 		System.out.println();
-		//ADD THE CHANGES TO ALLOW THE GAME STATE TO DO ITS JOB!
-		movePieces(gameState, holes, 2, 1);
-		movePieces(gameState, holes, 9, 2);
+		movePieces(gameState, holes, 2);
+		
+		//This determines who will move next depending on where the last piece ends up
+		nextMove(gameState);
+		for(int i = 0; i < totalHolesInBoard; i++){
+			System.out.print(holes.get(i).getNumPieces());
+			System.out.print(" ");
+		}
+		System.out.println();
+		movePieces(gameState, holes, 3);
+		nextMove(gameState);
+		movePieces(gameState, holes, 10);
 		for(int i = 0; i < totalHolesInBoard; i++){
 			System.out.print(holes.get(i).getNumPieces());
 			System.out.print(" ");

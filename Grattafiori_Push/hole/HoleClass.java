@@ -1,9 +1,9 @@
 package hole;
 
 public class HoleClass {
-	int store; //indicates whether current hole is a store, 0 = not a store, 1 = player 1's store, 2 = player 2's store
-	int numPieces; //number of pieces currently in the hole
-	int side; //represents which side the hole is on, 1 = player 1's side, 2 = player 2's side
+	public int store; //indicates whether current hole is a store, 0 = not a store, 1 = player 1's store, 2 = player 2's store
+	public int numPieces; //number of pieces currently in the hole
+	public int side; //represents which side the hole is on, 1 = player 1's side, 2 = player 2's side
 	
 	public HoleClass(){
 		store = 0;
