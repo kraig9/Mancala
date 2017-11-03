@@ -1,55 +1,74 @@
 package Mancala;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import java.awt.Graphics;
 
+
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import java.awt.Color;
 
-public class GuiApp extends JFrame {
+public class GuiApp extends JFrame 
+{
 
-	private JPanel contentPane;
+	JPanel contentPane;
+	JButton quit_btn;
 
-	public void paint(Graphics g)
-	{
-		super.paintComponents(g);	
-		g.setColor(Color.lightGray);
-        g.fillRect(50, 150, 1600, 600);
-        g.setColor(Color.GRAY);
-        g.fillOval(75, 200,150,500);
-        g.fillOval(1475, 200,150,500);
-        
-        g.fillOval(250, 525, 200, 200);
-        g.fillOval(450, 525, 200, 200);
-        g.fillOval(650, 525, 200, 200);
-        g.fillOval(850, 525, 200, 200);
-        g.fillOval(1050, 525, 200, 200);
-        g.fillOval(1250, 525, 200, 200);
-        
-        g.fillOval(250, 175, 200, 200);
-        g.fillOval(450, 175, 200, 200);
-        g.fillOval(650, 175, 200, 200);
-        g.fillOval(850, 175, 200, 200);
-        g.fillOval(1050, 175, 200, 200);
-        g.fillOval(1250, 175, 200, 200);
-		
-	}
 	/**
 	 * Create the frame.
 	 */
 	public GuiApp()
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//setBackground(new Color(139, 69, 19));
 		setBounds(100, 100, 1700, 900);
-		contentPane = new JPanel();
-		contentPane.setBackground(new Color(139, 69, 19));
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
+		setTitle("Mankala");
+		contentPane = new Start_Screen();
 		setContentPane(contentPane);
 		setVisible(true);
+		start();
+		quit();
+		
+	}
+	public void start()
+	{
+		Start_Screen.start_btn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				contentPane.setVisible(false);
+				contentPane=new Board();
+				setContentPane(contentPane);
+				quit();
+				
+			}
+			
+		});
+	}
+	
+	public void quit()
+	{
+		quit_btn=new JButton();
+		quit_btn.setBackground(Color.GRAY);
+		quit_btn.setText("Quit");
+		quit_btn.setToolTipText("Click to Quit Game!");
+		quit_btn.setBounds(1530,795, 150, 50);
+		quit_btn.setFont(new Font("Serif", Font.BOLD, 20));
+		add(quit_btn);
+		quit_btn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				dispose();
+	
+				
+			}
+			
+		});
 	}
 
 }
