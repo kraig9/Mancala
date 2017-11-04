@@ -4,17 +4,53 @@ import java.util.Enumeration;
 import java.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Board {
 	static Vector<HoleClass> holes = new Vector<HoleClass>();
 	
 	//this adds the holes to the board
 	//numHoles refers to the number of holes on each side of the board
-	public static void addHolesToBoard(int numHoles){
+	public static void addHolesToBoard(int numHoles, int piecesPerHole, int randomSeed){
+		Vector<Integer> seedAmounts = new Vector<Integer>();
+		
+		for(int i = 0; i < numHoles; i++){
+			seedAmounts.add(piecesPerHole);
+		}
+		
+		if(randomSeed == 1){
+			for(int i = 0; i < numHoles; i++){
+				seedAmounts.set(i,0);
+			}
+			
+			int seedsRemaining = numHoles * piecesPerHole;
+			
+			int currentHole = 0;
+			while(seedsRemaining > 0){
+				Random rand = new Random();
+				int n = rand.nextInt(2);
+				if(n == 1){
+					int previousAmount = seedAmounts.get(currentHole);
+					seedAmounts.set(currentHole, previousAmount + 1);
+					seedsRemaining--;
+				}
+				if(currentHole == numHoles - 1){
+					currentHole = 0;
+				}
+				else{
+					currentHole++;
+				}
+			}
+			
+			for(int i = 0; i < numHoles; i++){
+				System.out.println(seedAmounts.get(i));
+			}
+		}
+		
 		for(int i = 0; i < numHoles; i++){
 			HoleClass holeOne = new HoleClass();
 			holeOne.setSide(1);
-			holeOne.setNumPieces(4);
+			holeOne.setNumPieces(seedAmounts.get(i));
 			holeOne.setStore(0);
 			holes.add(holeOne);
 		}
@@ -26,7 +62,7 @@ public class Board {
 		for(int i = 0; i < numHoles; i++){
 			HoleClass holeTwo = new HoleClass();
 			holeTwo.setSide(2);
-			holeTwo.setNumPieces(4);
+			holeTwo.setNumPieces(seedAmounts.get(i));
 			holeTwo.setStore(0);
 			holes.add(holeTwo);
 		}
@@ -184,9 +220,9 @@ public class Board {
 				holes.get(i).setNumPieces(0);
 			}
 			int currentPeices = holes.get(holes.size()-1).getNumPieces();
-			System.out.println(currentPeices);
-			System.out.println(side2Peices);
 			holes.get(holes.size()-1).setNumPieces(currentPeices+side2Peices);
+			
+			gameState.gameOver = 1;
 		}
 		//give store 2 player 1's pieces if player 2 has none left
 		if(side2Peices==0) {
@@ -195,9 +231,22 @@ public class Board {
 			}
 			int currentPeices = holes.get((holes.size()/2)-1).getNumPieces();
 			holes.get((holes.size()/2)-1).setNumPieces(currentPeices+side1Peices);
+			
+			gameState.gameOver = 1;
 		}
 		gameState.setPiecesInPlayerOneStore(holes.get(holes.size()/2-1).getNumPieces());
 		gameState.setPiecesInPlayerTwoStore(holes.get(holes.size()-1).getNumPieces());
+	}
+	
+	public static void pieRule(GameState gameState){
+		
+		gameState.setCurrentMove(1);
+		for(int i = 0; i < gameState.boardSize + 1; i++){
+			int piecesForPlayerTwo = holes.get(i).getNumPieces();
+			int piecesForPlayerOne = holes.get(i+gameState.boardSize+1).getNumPieces();
+			holes.get(i).setNumPieces(piecesForPlayerOne);
+			holes.get(i+gameState.boardSize+1).setNumPieces(piecesForPlayerTwo);
+		}
 	}
 	
 	public static void fullTurn(GameState gameState, int hole, int totalHolesInBoard){
@@ -206,24 +255,46 @@ public class Board {
 		//This determines who will move next depending on where the last piece ends up
 		nextMove(gameState, result);
 		endGame(gameState);
-		for(int i = 0; i < totalHolesInBoard; i++){
-			System.out.print(holes.get(i).getNumPieces());
-			System.out.print(" ");
+		
+		//Choice is where we set player two's choice for the pie rule
+		int choice;
+		
+		//if it's the first move and if choice == 1, we run the pie rule function
+		if((gameState.firstMove == 1) && (gameState.currentMove == 2)){
+			gameState.firstMove = 0;
+			choice = 1; //set choice to 0 for no pie rule
+			if(choice == 1){
+				pieRule(gameState);
+			}
 		}
+		
 		System.out.println();
 		System.out.print("Player 1 Score: ");
 		System.out.print(gameState.getPiecesInPlayerOneStore());
 		System.out.print(" Player 2 Score: ");
 		System.out.print(gameState.getPiecesInPlayerTwoStore());
 		System.out.println();
+		
+		for(int i = 0; i < totalHolesInBoard; i++){
+			System.out.print(holes.get(i).getNumPieces());
+			System.out.print(" ");
+		}
+		System.out.println();
 	}
 	
 	public static void main(String[] args) {
-		//may create a function later that could allow user to choose number of holes, for now will make default 6
+		//create a function later that could allow user to choose number of holes, for now will make default 6
 		int holesOnSide = 6;
 		
+		//create a function later that could allow user to choose number of pieces in each hole, for now will make default 4
+		int piecesPerHole = 5;
+		
+		//create a function later that could allow user to choose if they want to make the seeding random
+		int randomSeed = 1;
+		
 		//creates board
-		addHolesToBoard(holesOnSide);
+		
+		addHolesToBoard(holesOnSide, piecesPerHole, randomSeed);
 		
 		//Once we know how many holes are in the board, we can set up the game state
 		GameState gameState = new GameState(holesOnSide);
@@ -237,29 +308,7 @@ public class Board {
 		System.out.println();
 		fullTurn(gameState, 2, totalHolesInBoard);
 		fullTurn(gameState, 5, totalHolesInBoard);
-		fullTurn(gameState, 11, totalHolesInBoard);
-		fullTurn(gameState, 0, totalHolesInBoard);
-		fullTurn(gameState, 8, totalHolesInBoard);
-		fullTurn(gameState, 11, totalHolesInBoard);
-		fullTurn(gameState, 1, totalHolesInBoard);
-		fullTurn(gameState, 7, totalHolesInBoard);
-		fullTurn(gameState, 3, totalHolesInBoard);
-		fullTurn(gameState, 9, totalHolesInBoard);
-		fullTurn(gameState, 4, totalHolesInBoard);
-		fullTurn(gameState, 11, totalHolesInBoard);
-		fullTurn(gameState, 0, totalHolesInBoard);
 		fullTurn(gameState, 12, totalHolesInBoard);
-		fullTurn(gameState, 2, totalHolesInBoard);
-		fullTurn(gameState, 4, totalHolesInBoard);
-		fullTurn(gameState, 1, totalHolesInBoard);
-		fullTurn(gameState, 10, totalHolesInBoard);
-		fullTurn(gameState, 4, totalHolesInBoard);
-		fullTurn(gameState, 7, totalHolesInBoard);
-		fullTurn(gameState, 1, totalHolesInBoard);
-		fullTurn(gameState, 12, totalHolesInBoard);
-		fullTurn(gameState, 11, totalHolesInBoard);
-		fullTurn(gameState, 2, totalHolesInBoard);
-		fullTurn(gameState, 8, totalHolesInBoard);
 		System.out.println();
 		for(int i = 0; i < totalHolesInBoard; i++){
 			System.out.print(holes.get(i).getNumPieces());

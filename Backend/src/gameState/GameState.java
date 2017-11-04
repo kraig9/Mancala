@@ -8,6 +8,10 @@ public class GameState {
 	public int currentMove; //1 if player 1's move, 2 if player 2's move
 	public int lastHole; //last hole to receive a piece. This is for when figuring out when to steal pieces
 	
+	public int firstMove; //This is for the pie rule so that we can give player two the choice to take it
+	
+	public int gameOver; //when the game ends this will be set to 1
+	
 	public int piecesInPlayerOneStore;
 	public int piecesInPlayerTwoStore;
 	
@@ -16,8 +20,10 @@ public class GameState {
 		stealPieces = 0;
 		this.boardSize = boardSize;
 		currentMove = 1;
+		firstMove = 1;
 		piecesInPlayerOneStore = 0;
 		piecesInPlayerTwoStore = 0;
+		gameOver = 0;
 	}
 	
 	public int getCurrentMove(){
