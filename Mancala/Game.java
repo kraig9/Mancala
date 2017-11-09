@@ -14,6 +14,10 @@ public class Game
 	{
 		frame.dispose();
 	}
+	public static void Open()
+	{
+		frame = new GuiApp();
+	}
 	public static void main(String[] args) 
 	{
 		EventQueue.invokeLater(new Runnable() 

@@ -2,12 +2,16 @@ package Mancala;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 
 public class Start_Screen extends JPanel
@@ -16,6 +20,7 @@ public class Start_Screen extends JPanel
 	JLabel Welcome;
 	JLabel Creator;
 	JLabel User;
+	JLabel Random_option;
 	static JComboBox<String> opponent_menu;
 	String[] Opponent;
 	static String opponent_selected;
@@ -32,6 +37,9 @@ public class Start_Screen extends JPanel
 	String[] Number_Holes;
 	static String holes_selected;
 	
+	JRadioButton Random_yes;
+	JRadioButton Random_no;
+	ButtonGroup Random_seeds;
 	
 	/*JMenuBar menu;
 	JMenuItem User2;
@@ -79,6 +87,44 @@ public class Start_Screen extends JPanel
 		holes_menu=new JComboBox<>(Number_Holes);
 		holes_menu.setBounds(650, 720, 475, 70);
 		holes_menu.setFont(new Font("Serif", Font.BOLD, 40));
+		
+		Random_option = new JLabel("Randomly Distributed Seeds:");
+		Random_option.setBounds(1150,600,300,50);
+		Random_option.setFont(new Font("Serif", Font.BOLD, 20));
+		
+		Random_yes = new JRadioButton("Yes");
+		Random_yes.setBounds(1150, 650, 60, 60);
+		Random_yes.setFont(new Font("Serif", Font.BOLD, 20));
+
+		
+		Random_no = new JRadioButton("No");
+		Random_no.setSelected(true);
+		Random_no.setBounds(1150, 700, 50, 50);
+		Random_no.setFont(new Font("Serif", Font.BOLD, 20));;
+		
+		//ButtonGroup handles making sure only one is selected
+		Random_seeds = new ButtonGroup();
+		Random_seeds.add(Random_yes);
+		Random_seeds.add(Random_no);
+		
+
+		ActionListener RandomActionListener = new ActionListener() {
+		      public void actionPerformed(ActionEvent actionEvent) {
+		        AbstractButton aButton = (AbstractButton) actionEvent.getSource();
+		        if(aButton.getText()=="Yes")
+		        {
+		        	Board.randomSeed=1;
+		        }
+		        else if(aButton.getText()=="No")
+		        {
+		        	Board.randomSeed=0;
+		        }
+		        
+		      }
+		    };
+
+		    Random_yes.addActionListener(RandomActionListener);
+		    Random_no.addActionListener(RandomActionListener);
 
 		/*menu = new JMenuBar();
 		menu.setBounds(950, 500, 250, 150);
@@ -103,6 +149,9 @@ public class Start_Screen extends JPanel
 		add(opponent_menu);
 		add(seed_menu);
 		add(holes_menu);
+		add(Random_no);
+		add(Random_yes);
+		add(Random_option);
 		setLayout(null);
 		
 		

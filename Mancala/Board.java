@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.Random;
 import java.util.Vector;
@@ -19,11 +21,9 @@ public class Board extends JPanel implements MouseListener
 	static Vector<HoleClass> holes = new Vector<HoleClass>();
 	int num_seeds = Integer.parseInt(Start_Screen.seed_selected);
 	int num_holes = Integer.parseInt(Start_Screen.holes_selected);
-	int diameter=0;
-	int randomSeed=1;
+	int diameter;
+	static int randomSeed=0; 
 	GameState gameState;
-	//GuiApp frame2;
-	boolean open = false;
 	
 	/**
 	 * Create the panel.
@@ -51,19 +51,8 @@ public class Board extends JPanel implements MouseListener
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				//Game.Close();
-				if(open==true)
-				{
-					//frame2.dispose();
-				}
-				open=true;
-				Game.frame.validate();
-				Game.frame.repaint();
-				
-				//frame2=new GuiApp();
-				
-				
-				
+				Game.Close();
+				Game.Open();
 			}
 			
 		});
@@ -429,15 +418,13 @@ public class Board extends JPanel implements MouseListener
 			endGame(gameState);
 			
 			//Choice is where we set player two's choice for the pie rule
-			int choice;
-			
+	
 			//if it's the first move and if choice == 1, we run the pie rule function
-			if((gameState.firstMove == 1) && (gameState.currentMove == 2)){
+			if((gameState.firstMove == 1) && (gameState.currentMove == 2))
+			{
 				gameState.firstMove = 0;
-				choice = 1; //set choice to 0 for no pie rule
-				if(choice == 1){
-					pieRule(gameState);
-				}
+				Game.frame.setVisible(false);
+				pieFrame(gameState);
 			}
 			
 			System.out.println();
@@ -452,6 +439,51 @@ public class Board extends JPanel implements MouseListener
 				System.out.print(" ");
 			}
 			System.out.println();
+		}
+		public static void pieFrame(GameState gameState)
+		{
+			JButton yes_pie = new JButton("Yes");
+			JButton no_pie = new JButton("No");
+			yes_pie.setBounds(125, 150, 100, 50);
+			no_pie.setBounds(325,150,100,50);
+			yes_pie.setFont(new Font("Serif", Font.BOLD, 20));
+			no_pie.setFont(new Font("Serif", Font.BOLD, 20));
+			JLabel pie_question = new JLabel("Would You Like To Implement The Pie Rule?");
+			pie_question.setBounds(100, 50, 400, 50);
+			pie_question.setFont(new Font("Serif", Font.BOLD, 20));
+			JFrame pie_rule = new JFrame();
+			pie_rule.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			pie_rule.setBounds(200, 400, 600, 300);
+			pie_rule.setTitle("Pie Rule");
+			pie_rule.setLayout(null);
+			pie_rule.add(yes_pie);
+			pie_rule.add(no_pie);
+			pie_rule.add(pie_question);
+			pie_rule.setVisible(true);
+			
+			yes_pie.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+				
+					pieRule(gameState);//implement pie rule
+					pie_rule.dispose();
+					Game.frame.setVisible(true);
+				}
+				
+			});
+			
+			no_pie.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					pie_rule.dispose();
+					Game.frame.setVisible(true);
+				}
+				
+			});
 		}
 		@Override
 		public void mouseEntered(MouseEvent e) {

@@ -44,10 +44,17 @@ public class GuiApp extends JFrame
 				Start_Screen.opponent_selected = Start_Screen.opponent_menu.getSelectedItem().toString();
 				Start_Screen.holes_selected = Start_Screen.holes_menu.getSelectedItem().toString();
 				
-				contentPane.setVisible(false);
-				contentPane=new Board();
-				setContentPane(contentPane);
-				quit();
+				String seed =Start_Screen.seed_selected ;
+				String holes = Start_Screen.holes_selected;
+				String player = Start_Screen.player_selected;
+				String opponent = Start_Screen.opponent_selected;
+				if(seed!= "Choose Number Of Seeds" && holes != "Choose Number Of Holes" && player != "Choose a Player" && opponent != "Choose an Opponent")
+				{
+					contentPane.setVisible(false);
+					contentPane=new Board();
+					setContentPane(contentPane);
+					quit();
+				}
 				
 			}
 			
@@ -74,6 +81,10 @@ public class GuiApp extends JFrame
 			}
 			
 		});
+	}
+	public void restart()
+	{
+		
 	}
 
 }
