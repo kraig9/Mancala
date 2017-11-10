@@ -18,7 +18,7 @@ import java.util.Vector;
 public class Board extends JPanel implements MouseListener 
 {
 	JButton restart_btn;
-	static Vector<HoleClass> holes = new Vector<HoleClass>();
+	static Vector<HoleClass> holes ;
 	int num_seeds = Integer.parseInt(Start_Screen.seed_selected);
 	int num_holes = Integer.parseInt(Start_Screen.holes_selected);
 	int diameter;
@@ -33,6 +33,7 @@ public class Board extends JPanel implements MouseListener
 	{
 		setLayout(null);
 		pie_choice=false;
+		holes = new Vector<HoleClass>();
 		restart_btn=new JButton();
 		restart_btn.setBackground(Color.GRAY);
 		restart_btn.setText("Restart");
@@ -336,7 +337,8 @@ public class Board extends JPanel implements MouseListener
 					//If the last piece goes into an empty hole on the players side then they can steal the pieces from the opposite hole on the opponents side
 					gameState.lastHole = currentHole;
 					if((holes.get(currentHole).getNumPieces() == 0) && (holes.get(currentHole).getSide() == gameState.getCurrentMove())){
-						gameState.setStealPieces(1);
+						
+						//gameState.setStealPieces(1);
 					}
 					else{
 						gameState.setStealPieces(0);
