@@ -22,6 +22,7 @@ public class Board extends JPanel implements MouseListener
 	int num_seeds = Integer.parseInt(Start_Screen.seed_selected);
 	int num_holes = Integer.parseInt(Start_Screen.holes_selected);
 	int diameter;
+	static boolean pie_choice;
 	static int randomSeed=0; 
 	GameState gameState;
 	
@@ -31,6 +32,7 @@ public class Board extends JPanel implements MouseListener
 	public Board() 
 	{
 		setLayout(null);
+		pie_choice=false;
 		restart_btn=new JButton();
 		restart_btn.setBackground(Color.GRAY);
 		restart_btn.setText("Restart");
@@ -141,7 +143,7 @@ public class Board extends JPanel implements MouseListener
 					position_y= (.7)*(holes.get(i).diameter/2) * Math.sin((2*Math.PI*j)/holes.get(i).getNumPieces()) + (holes.get(i).height+(.9)*(holes.get(i).diameter/2));
 					g.fillOval((int)position_x,(int)position_y,holes.get(i).diameter/10,holes.get(i).diameter/10);
 				}
-			};
+			}
 			for(int j=0;j<holes.get(i).getNumPieces();j++)
 			{
 				position_x=(.7)*(holes.get(i).diameter/2)  * Math.cos((2*Math.PI*j)/holes.get(i).getNumPieces()) +(holes.get(i).width+(.9)*(holes.get(i).diameter/2));
@@ -153,19 +155,22 @@ public class Board extends JPanel implements MouseListener
 
 	public void mouseClicked(MouseEvent e)
 	{
-		int totalHolesInBoard = num_holes *2 +2;
-		for(int i =0 ; i<(2*num_holes+1);i++)
+		if(pie_choice==false)
 		{
-			if(i==num_holes)
+			int totalHolesInBoard = num_holes *2 +2;
+			for(int i =0 ; i<(2*num_holes+1);i++)
 			{
-				i++;
-			}
-			if((e.getButton()==1)&& (e.getX()>=holes.get(i).width) && (e.getX()<=(holes.get(i).width + diameter))
-					&& (e.getY()>=holes.get(i).height) && (e.getY()<=(holes.get(i).height + diameter)))
-			{
-				fullTurn(gameState, i, totalHolesInBoard);
-				Game.frame.validate();
-				Game.frame.repaint();
+				if(i==num_holes)
+				{
+					i++;
+				}
+				if((e.getButton()==1)&& (e.getX()>=holes.get(i).width) && (e.getX()<=(holes.get(i).width + diameter))
+						&& (e.getY()>=holes.get(i).height) && (e.getY()<=(holes.get(i).height + diameter)))
+				{
+					fullTurn(gameState, i, totalHolesInBoard);
+					Game.frame.validate();
+					Game.frame.repaint();
+				}
 			}
 		}
 	}
@@ -408,6 +413,7 @@ public class Board extends JPanel implements MouseListener
 				holes.get(i).setNumPieces(piecesForPlayerOne);
 				holes.get(i+gameState.boardSize+1).setNumPieces(piecesForPlayerTwo);
 			}
+			Game.frame.repaint();
 		}
 		
 		public static void fullTurn(GameState gameState, int hole, int totalHolesInBoard){
@@ -423,8 +429,8 @@ public class Board extends JPanel implements MouseListener
 			if((gameState.firstMove == 1) && (gameState.currentMove == 2))
 			{
 				gameState.firstMove = 0;
-				Game.frame.setVisible(false);
-				pieFrame(gameState);
+				pie_choice=true;
+				pieFrame(gameState, totalHolesInBoard);
 			}
 			
 			System.out.println();
@@ -440,7 +446,7 @@ public class Board extends JPanel implements MouseListener
 			}
 			System.out.println();
 		}
-		public static void pieFrame(GameState gameState)
+		public static void pieFrame(GameState gameState, int totalHolesInBoard)
 		{
 			JButton yes_pie = new JButton("Yes");
 			JButton no_pie = new JButton("No");
@@ -469,9 +475,20 @@ public class Board extends JPanel implements MouseListener
 				
 					pieRule(gameState);//implement pie rule
 					pie_rule.dispose();
-					Game.frame.setVisible(true);
+					pie_choice=false;
+					System.out.println();
+					System.out.print("Player 1 Score: ");
+					System.out.print(gameState.getPiecesInPlayerOneStore());
+					System.out.print(" Player 2 Score: ");
+					System.out.print(gameState.getPiecesInPlayerTwoStore());
+					System.out.println();
+					
+					for(int i = 0; i < totalHolesInBoard; i++){
+						System.out.print(holes.get(i).getNumPieces());
+						System.out.print(" ");
+					}
+					System.out.println();
 				}
-				
 			});
 			
 			no_pie.addActionListener(new ActionListener()
@@ -480,7 +497,7 @@ public class Board extends JPanel implements MouseListener
 				public void actionPerformed(ActionEvent e) 
 				{
 					pie_rule.dispose();
-					Game.frame.setVisible(true);
+					pie_choice=false;
 				}
 				
 			});
