@@ -17,6 +17,7 @@ import javax.swing.JRadioButton;
 public class Start_Screen extends JPanel
 {
 	static JButton start_btn;
+	static JButton Instruction_btn;
 	JLabel Welcome;
 	JLabel Creator;
 	JLabel User;
@@ -53,8 +54,15 @@ public class Start_Screen extends JPanel
 		start_btn.setBackground(Color.GRAY);
 		start_btn.setText("Start");
 		start_btn.setToolTipText("Click to Start Mankala!");
-		start_btn.setBounds(800,400, 150, 50);
+		start_btn.setBounds(700,400, 150, 50);
 		start_btn.setFont(new Font("Serif", Font.BOLD, 20));
+		
+		Instruction_btn=new JButton();
+		Instruction_btn.setBackground(Color.GRAY);
+		Instruction_btn.setText("Instructions");
+		Instruction_btn.setToolTipText("Click to Read Instructions!");
+		Instruction_btn.setBounds(900,400, 150, 50);
+		Instruction_btn.setFont(new Font("Serif", Font.BOLD, 20));
 		
 		Welcome = new JLabel();
 		Welcome.setText("Play Mancala");
@@ -143,6 +151,7 @@ public class Start_Screen extends JPanel
 		*/
 		
 		add(start_btn);
+		add(Instruction_btn);
 		add(Creator);
 		add(Welcome);
 		add(player_menu);
