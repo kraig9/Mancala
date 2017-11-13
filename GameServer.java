@@ -1,13 +1,11 @@
+package Mancala;
+
 import java.io.*;
 import java.net.*;
 import java.net.Socket;
-import java.util.Date;
-import java.util.PriorityQueue;
-import java.util.Queue;
 
 public class GameServer{	
-	Queue<String> p1q=new PriorityQueue<String>();
-	Queue<String> p2q=new PriorityQueue<String>();
+ 	
 	public static void main(String[] args) {
 		System.out.println("GameServer is running. Welcome to the server!");
 		int portNum = 9000;
@@ -16,8 +14,9 @@ public class GameServer{
 			//Don't use ports below 1024!
 			ServerSocket listener = new ServerSocket(portNum);
 		){
+			int pid = 1;
 			while(listening){
-				new GameServerThread(listener.accept()).start();
+				new GameServerThread(listener.accept(), pid).start();
 			}
 		}
 		catch(IOException e){
@@ -25,21 +24,28 @@ public class GameServer{
 		}
 	}
 }
-class GameProtocol{
-	
-	
-		GameProtocol(){
+	class ServerProtocol{
 			
-		}
-		String processInput(String input){
-			//WELCOME
-			
+		String serverProtocol(String clientMessage){
+			if(clientMessage==null) return "WELCOME";
+			String tokens[] = clientMessage.split(" ");
+			//INFO
+			if(tokens[0]=="INFO"){
+				//send info to other client
+				return "READY";
+			}
 			//READY
-			
+			else if(tokens[0]=="READY"){
+				return "OK";
+			}
 			//OK
-			
+			else if(tokens[0]=="OK"){
+				return "OK";
+			}
 			//ILLEGAL
-			
+			else if(tokens[0]=="ILLEGAL"){
+				//terminate game and display loser and winner message
+			}
 			//TIME
 			
 			//LOSER
@@ -47,16 +53,19 @@ class GameProtocol{
 			//WINNER
 			
 			//TIE
-			return "Process Input in GameProtocol returned";
+			
+			//WELCOME
+			return "";
 		}
 
 	}
 class GameServerThread extends Thread {
 	private Socket socket = null;
-	
-	public GameServerThread(Socket socket){
+	int pid;
+	public GameServerThread(Socket socket, int pid){
 		super("GameServerThread");
 		this.socket = socket;
+		this.pid=pid;
 	}
 	
 	public void run(){
@@ -66,12 +75,12 @@ class GameServerThread extends Thread {
 			BufferedReader in = new BufferedReader(
 			new InputStreamReader(socket.getInputStream()));
 			String inputLine, outputLine;
-			GameProtocol gp = new GameProtocol();
-			outputLine = gp.processInput(null);
+			ServerProtocol sp = new ServerProtocol();
+			outputLine = sp.serverProtocol(null);
 			out.println(outputLine);
 			
 			while((inputLine=in.readLine())!=null){
-				outputLine = gp.processInput(inputLine);
+				outputLine = sp.serverProtocol(inputLine);
 				out.println(outputLine);
 				if(outputLine.equals("Bye"))
 					break;
@@ -80,28 +89,6 @@ class GameServerThread extends Thread {
 		}
 		catch(IOException e){
 			e.printStackTrace();
-		}
-	}
-}
-class OutputThread extends Thread {
-	public void run() {
-		//try {
-		while(true) {
-			//poll from players queues and output
-		}
-	}
-		/* catch(IOException e){
-			e.printStackTrace();
-		} */
-}
-class InputThread extends Thread {
-	public void run(){
-		while(true) {
-			//get message from players
-			
-			//process
-			
-			//put result into player's respective queues
 		}
 	}
 }
