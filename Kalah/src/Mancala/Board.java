@@ -79,11 +79,17 @@ public class Board extends JPanel implements MouseListener
 		
 		Time();
 		restart();
+		clientListening();
 		
 		add(Player1);
 		add(Player2);
 		add(P1_score);
 		add(P2_score);
+		
+		
+	}
+	public void clientListening()
+	{
 		if(GuiApp.server==true)
 		{
 			new Thread(()->{
