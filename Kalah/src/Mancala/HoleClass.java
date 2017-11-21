@@ -5,9 +5,9 @@ public class HoleClass {
 	public int numPieces; //number of pieces currently in the hole
 	public int side; //represents which side the hole is on, 1 = player 1's side, 2 = player 2's side
 	
-	int height;
-	int width;
-	int diameter;
+	public int height;
+	public int width;
+	public int diameter;
 	
 	public HoleClass()
 	{
@@ -43,4 +43,14 @@ public class HoleClass {
 	public int getSide(){
 		return side;
 	}
+	
+	//COPY CONSTRUCTOR
+		public HoleClass(HoleClass hole) {
+			this.store = hole.store;
+			this.numPieces = hole.numPieces;
+			this.side = hole.side;
+			this.height = hole.height;
+			this.diameter = hole.diameter;
+			this.width = hole.width;
+		}
 }

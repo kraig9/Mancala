@@ -73,4 +73,16 @@ public class GameState {
 	public void setPiecesInPlayerTwoStore(int pieces){
 		this.piecesInPlayerTwoStore = pieces;
 	}
+	
+	//Copy Constructor
+	public GameState(GameState gs) {
+		this.moveAgain = gs.moveAgain;
+		this.stealPieces = gs.stealPieces;
+		this.boardSize = gs.boardSize;
+		this.currentMove = gs.currentMove;
+		this.firstMove = gs.firstMove;
+		this.piecesInPlayerOneStore = gs.piecesInPlayerOneStore;
+		this.piecesInPlayerTwoStore = gs.piecesInPlayerTwoStore;
+		this.gameOver = gs.gameOver;
+	}
 }

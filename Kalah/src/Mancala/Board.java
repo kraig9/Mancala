@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -15,6 +17,7 @@ import javax.swing.JPanel;
 import java.util.Random;
 import java.util.Vector;
 import javax.swing.Timer;
+import java.util.Collections;
 
 public class Board extends JPanel implements MouseListener 
 {
@@ -23,19 +26,18 @@ public class Board extends JPanel implements MouseListener
 	JLabel Player2;
 	public static JLabel P1_score;
 	public static JLabel P2_score;
-	static Vector<HoleClass> holes ;
+	public static Vector<HoleClass> holes ;
 	int num_seeds = Integer.parseInt(Start_Screen.seed_selected);
 	int num_holes = Integer.parseInt(Start_Screen.holes_selected);
 	int diameter;
 	static boolean pie_choice;
 	static boolean invalid_click;
+	static boolean opponent_turn;
 	static int randomSeed=0; 
-	GameState gameState;
-	static JLabel time_lbl;
+	static GameState gameState;
 	static int countdown;
-	static Timer timer;
-	 JFrame tim;
-	 ActionListener timecountdown;
+	Timer timer=null;
+	static String Move;
 	/**
 	 * Create the panel.
 	 */
@@ -43,8 +45,10 @@ public class Board extends JPanel implements MouseListener
 	{
 		setLayout(null);
 		countdown = 30;
+		Move=null;
 		pie_choice=false;
 		invalid_click=false;
+		opponent_turn = false;
 		holes = new Vector<HoleClass>();
 		restart_btn=new JButton();
 		restart_btn.setBackground(Color.GRAY);
@@ -55,7 +59,10 @@ public class Board extends JPanel implements MouseListener
 		diameter=1200/(num_holes);
 		gameState = new GameState(num_holes);
 		add(restart_btn);
-		addHolesToBoard(num_holes, num_seeds, randomSeed);
+		//if(GuiApp.server == false)
+		//{
+			addHolesToBoard(num_holes, num_seeds, randomSeed);
+		//}
 		this.addMouseListener(this);
 		Player2= new JLabel("Player 2 Score");
 		Player2.setBounds(75, 50, 250, 50);
@@ -70,19 +77,39 @@ public class Board extends JPanel implements MouseListener
 		P1_score.setBounds(1475, 110, 50, 30);
 		P1_score.setFont(new Font("Serif", Font.BOLD, 40));
 		
-		time_lbl = new JLabel(String.valueOf(countdown));
-		//time_lbl.setBounds(100, 20, 150, 50);
-	    
-				
+		Time();
+		restart();
 		
 		add(Player1);
 		add(Player2);
 		add(P1_score);
 		add(P2_score);
-		//add(time_lbl);
-		
-		Time();
-		restart();
+		if(GuiApp.server==true)
+		{
+			new Thread(()->{
+					while(true) {
+						try {
+							String msg = GameClient.in.readLine();
+							String tok[] = msg.split(" ");
+		                    if(!tok[0].equals("WELCOME") && !tok[0].equals("INFO") && !tok[0].equals("OK")) 
+		                    {    
+		                     	int totalHoles = Integer.valueOf(num_holes) *2 +2;
+		                    	for(int i=0; i< tok.length; i++)
+		                    	{
+		                    		opponent_turn = true;
+		                    		System.out.println("this" + Integer.valueOf(tok[i]));
+		                    		fullTurn(gameState, Integer.valueOf(tok[i]), totalHoles);
+		                    		Game.frame.validate();
+		        					Game.frame.repaint();
+		                    	}
+		                    }
+		                    opponent_turn=false;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}).start();
+		}
 	}
 	public void restart()
 	{
@@ -215,11 +242,23 @@ public class Board extends JPanel implements MouseListener
 				}
 			}
 		}
+	/*	if(gameState.getCurrentMove()==1 && GuiApp.AI_First==true)
+		{
+			AI_Player(gameState);
+			Game.frame.validate();
+			Game.frame.repaint();
+		}
+		else if(gameState.getCurrentMove()==2 && GuiApp.AI_Second==true)
+		{
+			AI_Player(gameState);
+			Game.frame.validate();
+			Game.frame.repaint();
+		}*/
 	}
 	
 	//this adds the holes to the board
 		//numHoles refers to the number of holes on each side of the board
-		public static void addHolesToBoard(int numHoles, int piecesPerHole, int randomSeed){
+		public static Vector<HoleClass> addHolesToBoard(int numHoles, int piecesPerHole, int randomSeed){
 			Vector<Integer> seedAmounts = new Vector<Integer>();
 			
 			for(int i = 0; i < numHoles; i++){
@@ -279,18 +318,57 @@ public class Board extends JPanel implements MouseListener
 			holeTwo.setNumPieces(0);
 			holeTwo.setStore(1);
 			holes.add(holeTwo);
+			return holes;
 		}
 		
-		public static void nextMove(GameState gameState, boolean result){
+		public void nextMove(GameState gameState, boolean result)
+		{
+	
 			//it will switch to the next player if the last move did not result in a free move and if it was a valid move
-			if((gameState.getMoveAgain() == 0) && (result == true)){
-				if(gameState.getCurrentMove() == 1){
+			
+			if((gameState.getMoveAgain() == 0) && (result == true))
+			{
+				if(GuiApp.server==true)
+				{
+					GameClient.out.println(Move);
+					try
+					{
+						System.out.println(GameClient.in.readLine());
+					} 
+					catch (IOException e) 
+					{
+					
+						e.printStackTrace();
+					}
+				}
+				if(gameState.getCurrentMove() == 1)
+				{
 					gameState.setCurrentMove(2);
+				/*	if(GuiApp.AI_Second==true)
+					{
+						AI_Player(gameState);
+					}*/
 				}
 				else{
 					gameState.setCurrentMove(1);
+					/*if(GuiApp.AI_First==true)
+					{
+						AI_Player(gameState);
+					}*/
 				}
+				Move=null;
 			}
+			/*else
+			{
+				if(gameState.getCurrentMove()==1 && GuiApp.AI_First==true)
+				{
+					AI_Player(gameState);
+				}
+				else if(gameState.getCurrentMove()==2 && GuiApp.AI_Second==true)
+				{
+					AI_Player(gameState);
+				}
+			}*/
 		}
 		
 		public static void stealPieces(GameState gameState){
@@ -356,24 +434,31 @@ public class Board extends JPanel implements MouseListener
 			if(holeNumber < holes.size())
 			{
 				selectedHole = holes.get(holeNumber);
-				countdown=30;
 			}
 			else
 			{
 				invalid_text = "Selected Hole Number does not exist!";
 				invalid_click=true;
 				InvalidMove(invalid_text);
-				System.out.println("Selected Hole Number does not exist");
+				//System.out.println("Selected Hole Number does not exist");
 				return false;
 			}
-			
+			if(GuiApp.server==true && selectedHole.getSide()!= GameClient.player && opponent_turn==false)
+			{
+				invalid_text = "It is not your turn!";
+				invalid_click=true;
+				InvalidMove(invalid_text);
+				//System.out.println("Must make a move on the current player's side of the board");
+				return false;
+					
+			}
 			//if the player does not control the selected hole, the move is invalid
 			if(selectedHole.getSide() != gameState.getCurrentMove())
 			{
 				invalid_text = "Must make a move on the current player's side of the board!";
 				invalid_click=true;
 				InvalidMove(invalid_text);
-				System.out.println("Must make a move on the current player's side of the board");
+				//System.out.println("Must make a move on the current player's side of the board");
 				return false;
 			}
 			
@@ -383,7 +468,7 @@ public class Board extends JPanel implements MouseListener
 				invalid_text = "Cannot make a move out of the current player's store!";
 				invalid_click=true;
 				InvalidMove(invalid_text);
-				System.out.println("Cannot make a move out of the current player's store");
+				//System.out.println("Cannot make a move out of the current player's store");
 				return false;
 			}
 			
@@ -396,7 +481,7 @@ public class Board extends JPanel implements MouseListener
 				invalid_text = "Cannot make a move where there are no pieces!";
 				invalid_click=true;
 				InvalidMove(invalid_text);
-				System.out.println("Cannot make a move where there are no pieces");
+				//System.out.println("Cannot make a move where there are no pieces");
 				return false;
 			}
 			
@@ -461,8 +546,9 @@ public class Board extends JPanel implements MouseListener
 					
 					//subtract 1 from our counter whenever a piece is added to a hole
 					piecesInSelectedHole--;
+					
 				}
-				
+				//countdown=30;
 			}
 			
 			return true;
@@ -544,31 +630,146 @@ public class Board extends JPanel implements MouseListener
 			return moves;
 		}
 		
-		public static int computerMove(Vector<Integer> moves) {
-			int moveAmt = moves.size();
-			Random rand = new Random();
-			if(moves.size() == 0) {
-				return 0;
+		public static Vector<Double> narrowMoves(Vector<Integer> moves, GameState gameState, int countdown){
+			Vector<Double> moveValues = new Vector<Double>();
+			Vector<Double> NextMoveValues = new Vector<Double>();
+			for(int i = 0; i < moves.size(); i++) {
+				moveValues.add(-200.0); //we add -2 because if we cannot get to a possiblity making the default value -2 ensures it will never be chosen
+				NextMoveValues.add(-200.0);
 			}
-			int choice = rand.nextInt(moveAmt);
-			int chosenMove = moves.get(choice);
-			System.out.println(chosenMove);
-			return chosenMove;
+			for(int i = 0; i < moves.size(); i++) {
+				//System.out.println("0 moves: " + holes.get(0).getNumPieces());
+				//Vector<HoleClass> nextHoles = holes;
+				GameState gameStateAI = new GameState(gameState);
+				
+				Vector<HoleClass> nextHoles = new Vector<HoleClass>();
+				for(int j = 0; j < holes.size(); j++) {
+					HoleClass newHole = new HoleClass(holes.get(j));
+					nextHoles.add(newHole);
+				}
+				
+				int totalHolesInBoard = gameState.boardSize*2 + 2;
+				System.out.println("Howdy 3");
+				double moveResult = AI.fullTurnFutureMax(gameStateAI, moves.get(i), totalHolesInBoard, nextHoles, countdown, 0, 0, -200);
+				//System.out.println("Move Result: " + moveResult);
+				moveValues.set(i, moveResult);
+			}
+			
+			int currentDepth = 1;
+			int currentNode = 0;
+			
+			//AB Pruning. After every while loop if depth stays the same compare returned value to this
+			// if returned value > pruningValue, pruningValue=returned value
+			//-200 ensures that the first value will always be greater than the original
+			double pruningValue = -200;
+			
+			System.out.print("Possible Moves: ");
+			for(int j = 0; j < moveValues.size(); j++) {
+				System.out.print(moveValues.get(j) + " ");
+			}
+			System.out.println();
+			
+			System.out.println("HEY HEY HEY HEY HEY HEY HEY Current Depth: " + currentDepth);
+			while((countdown >= 2) && (currentDepth < 6)) {
+				//Vector<HoleClass> nextHoles = holes;
+				GameState gameStateAI = new GameState(gameState);
+				
+				Vector<HoleClass> nextHoles = new Vector<HoleClass>();
+				for(int j = 0; j < holes.size(); j++) {
+					HoleClass newHole = new HoleClass(holes.get(j));
+					nextHoles.add(newHole);
+				}
+				
+				int totalHolesInBoard = gameState.boardSize*2 + 2;
+				System.out.println("Howdy 1");
+				double moveResult = AI.fullTurnFutureMax(gameStateAI, moves.get(currentNode), totalHolesInBoard, nextHoles, countdown, 0, currentDepth, pruningValue);
+				System.out.println("Move Result howdy: " + moveResult);
+				NextMoveValues.set(currentNode, moveResult);
+				
+				if(currentNode == moves.size()-1) {
+					//reset currentNode and move to next depth
+					currentNode = 0;
+					currentDepth = currentDepth + 1;
+					System.out.println("HEY HEY HEY HEY HEY HEY HEY Current Depth: " + currentDepth);
+					
+					//update moveValues with the results from the latest depth
+					for(int c = 0; c < NextMoveValues.size(); c++) {
+						moveValues.set(c, NextMoveValues.get(c));
+					}
+					
+					//reset pruning value after pruning at previous depth finishes
+					pruningValue = -200;
+				}
+				else {
+					currentNode++;
+					
+					//update pruningValue if most recent value > pruningValue
+					if(moveResult > pruningValue) {
+						pruningValue = moveResult;
+					}
+				}
+				System.out.println("current depth" + currentDepth + "current node " + currentNode + "current move " + moves.get(currentNode));
+				System.out.println("countdown " + countdown);
+				
+				System.out.print("Possible Moves: ");
+				for(int j = 0; j < moveValues.size(); j++) {
+					System.out.print(moveValues.get(j) + " ");
+				}
+				System.out.println();
+				
+				System.out.print("Next Possible Moves: ");
+				for(int j = 0; j < NextMoveValues.size(); j++) {
+					System.out.print(NextMoveValues.get(j) + " ");
+				}
+				System.out.println();
+			}
+			
+			System.out.print("Possible Moves: ");
+			for(int j = 0; j < moveValues.size(); j++) {
+				System.out.print(moveValues.get(j) + " ");
+			}
+			System.out.println();
+			
+			return moveValues;
 		}
 		
-		public static void fullTurn(GameState gameState, int hole, int totalHolesInBoard){
+		public static int computerMove(Vector<Integer> moves, Vector<Double> values) {
+			double maxValue = Collections.max(values);
+			for(int i = 0; i < moves.size(); i++) {
+				if(maxValue == values.get(i)) {
+					return moves.get(i);
+				}
+			}
+			return 0;
+		}
+		public void AI_Player(GameState gameState)
+		{
+			int totalHolesBoard = num_holes *2 +2;
+			Vector<Integer> possMoves = possibleMoves(gameState);
+			Vector<Double> moveQualities = narrowMoves(possMoves,gameState,countdown);
+			int chosenMove = computerMove(possMoves, moveQualities);
+			fullTurn(gameState, chosenMove, totalHolesBoard);
+		}
+		public void fullTurn(GameState gameState, int hole, int totalHolesInBoard){
 			boolean result = movePieces(gameState, hole);
-			if(result == true) {
+			if(result == true)
+			{
 				stealPieces(gameState);
+				if(Move==null) 
+				{
+					//Move.is
+					Move=Integer.toString(hole);
+				}
+				else
+				{
+					Move=Move + " " + hole;
+				}
 				//This determines who will move next depending on where the last piece ends up
 				nextMove(gameState, result);
 				endGame(gameState);
 			}
-			Vector<Integer> possMoves = possibleMoves(gameState);
-			int chosenMove = computerMove(possMoves);
 			
 			//Choice is where we set player two's choice for the pie rule
-	
 			//if it's the first move and if choice == 1, we run the pie rule function
 			if((gameState.firstMove == 1) && (gameState.currentMove == 2))
 			{
@@ -577,19 +778,7 @@ public class Board extends JPanel implements MouseListener
 				pieFrame(gameState, totalHolesInBoard);
 			}
 			Scoreboard(gameState);
-			System.out.println();
-			System.out.print("Player 1 Score: ");
-			System.out.print(gameState.getPiecesInPlayerOneStore());
-			System.out.print(" Player 2 Score: ");
-			System.out.print(gameState.getPiecesInPlayerTwoStore());
-			System.out.println();
-			
-			for(int i = 0; i < totalHolesInBoard; i++)
-			{
-				System.out.print(holes.get(i).getNumPieces());
-				System.out.print(" ");
-			}
-			System.out.println();
+			countdown=30;
 		}
 		public static void pieFrame(GameState gameState, int totalHolesInBoard)
 		{
@@ -617,23 +806,11 @@ public class Board extends JPanel implements MouseListener
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
-				
+					countdown=30;
 					pieRule(gameState);//implement pie rule
 					pie_rule.dispose();
 					pie_choice=false;
 					
-					System.out.println();
-					System.out.print("Player 1 Score: ");
-					System.out.print(gameState.getPiecesInPlayerOneStore());
-					System.out.print(" Player 2 Score: ");
-					System.out.print(gameState.getPiecesInPlayerTwoStore());
-					System.out.println();
-					
-					for(int i = 0; i < totalHolesInBoard; i++){
-						System.out.print(holes.get(i).getNumPieces());
-						System.out.print(" ");
-					}
-					System.out.println();
 				}
 			});
 			
@@ -651,42 +828,29 @@ public class Board extends JPanel implements MouseListener
 		
 		public void Time()
 		{
+			 JPanel time_window= new JPanel();
+			 JLabel time_lbl = new JLabel();	
+			 time_window.setBounds(800, 50, 100, 100);
+			 //time_window.setBounds(0, 0, 100, 100);
+			 time_lbl.setFont(new Font("Serif", Font.BOLD, 60));
+			 //time_lbl.setBounds(0, 0, 100, 100);
+			 time_window.add(time_lbl);
+			 time_window.setVisible(true);
+			 add(time_window);
+	
 			ActionListener timecountdown = new ActionListener() {
 		            public void actionPerformed(ActionEvent et) {
-		                countdown--;
-		                tim.add(time_lbl);
+		            	countdown--;
 		            	time_lbl.setText(String.valueOf(countdown));
-		            	if(countdown == 0)
+		            	if(countdown <= 0)
 		            	{
-		            		//end();
-		            		//timer.stop();
-		            		
-		            		tim.setVisible(false);
-		            	}
-		            	else
-		            	{
-		            		tim.setVisible(true);
+		            		timer.stop();
 		            	}
 		            }
 		        };
-		       time_lbl.setBounds(0, 0, 100, 100);
-		       time_lbl.setFont(new Font("Serif", Font.BOLD, 60));
-			   tim= new JFrame();
-			   tim.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			   tim.setBounds(1800, 400, 100, 200);
-			   tim.setTitle("Timer");
-			   tim.setVisible(true);
-			   tim.setLayout(null);
-		       Timer timer = new Timer(1000 ,timecountdown);
-			   timer.start();
+		        timer = new Timer(1000 ,timecountdown);
+		        timer.start();
 
-		}
-		public void end()
-		{
-			if(countdown==0)
-	        {
-	        	timer.removeActionListener(timecountdown);
-	        }
 		}
 		@Override
 		public void mouseEntered(MouseEvent e) {

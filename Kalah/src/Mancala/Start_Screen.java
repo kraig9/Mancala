@@ -9,6 +9,7 @@ import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -18,6 +19,8 @@ public class Start_Screen extends JPanel
 {
 	static JButton start_btn;
 	static JButton Instruction_btn;
+	static JButton Client_btn;
+	static JButton Server_btn;
 	JLabel Welcome;
 	JLabel Creator;
 	JLabel User;
@@ -63,6 +66,18 @@ public class Start_Screen extends JPanel
 		Instruction_btn.setToolTipText("Click to Read Instructions!");
 		Instruction_btn.setBounds(900,400, 150, 50);
 		Instruction_btn.setFont(new Font("Serif", Font.BOLD, 20));
+		
+		Client_btn=new JButton();
+		Client_btn.setBackground(Color.GRAY);
+		Client_btn.setText("Connect to Server");
+		Client_btn.setBounds(400,730, 200, 50);
+		Client_btn.setFont(new Font("Serif", Font.BOLD, 20));
+		
+		Server_btn=new JButton();
+		Server_btn.setBackground(Color.GRAY);
+		Server_btn.setText("Host Server");
+		Server_btn.setBounds(400,630, 200, 50);
+		Server_btn.setFont(new Font("Serif", Font.BOLD, 20));
 		
 		Welcome = new JLabel();
 		Welcome.setText("Play Mancala");
@@ -152,6 +167,8 @@ public class Start_Screen extends JPanel
 		
 		add(start_btn);
 		add(Instruction_btn);
+		add(Client_btn);
+		add(Server_btn);
 		add(Creator);
 		add(Welcome);
 		add(player_menu);
