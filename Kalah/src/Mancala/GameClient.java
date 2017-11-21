@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Vector;
+
 import javax.swing.JOptionPane;
 
 
@@ -18,11 +20,13 @@ public class GameClient
     static PrintWriter out;
     Socket socket;
     public static int player;
+    public static Vector<Integer> rands;
 
     public GameClient() 
     {
     	player=0;
     	GuiApp.server=true;
+    	rands= new Vector<Integer>(); 
        
     }
 
@@ -90,35 +94,17 @@ public class GameClient
         	Board.randomSeed=0;
         }
         
-        //for(int i=6; i<tokens.length;i++)
-        //{
-        	
-        //}
+        for(int i=6; i<tokens.length;i++)
+        {
+        	Integer temp = Integer.valueOf(tokens[i]); 
+        	rands.add(temp);
+        }
         Start_Screen.seed_selected = seeds;
         Start_Screen.holes_selected = holes;
         out.println("READY");
         out.flush();
-      /*  while(true) {
-			try {
-				String msg = GameClient.in.readLine();
-				String tok[] = msg.split(" ");
-                if(!tok[0].equals("WELCOME") && !tok[0].equals("INFO") && tok[0]!="OK") 
-                {         
-                	int totalHoles = Integer.valueOf(holes) *2 +2;
-                	for(int i=0; i< tok.length; i++)
-                	{
-                		Board.fullTurn(Board.gameState, Integer.valueOf(tok[i]), totalHoles);
-                		Game.frame.validate();
-    					Game.frame.repaint();
-                	}
-                }
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}*/
         
     }
-	
     private void log(String message) 
     {
         System.out.println(message);

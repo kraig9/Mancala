@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -19,8 +20,16 @@ import javax.swing.JLabel;
 
 public class GameServer 
 {
-	static boolean players=false;
-	static ArrayList<ServerThread> servers = new ArrayList<ServerThread>();
+	static boolean players;
+	static ArrayList<ServerThread> servers ;
+	static Vector<HoleClass> holes_vector;
+	public GameServer()
+	{
+		players=false;
+		servers = new ArrayList<ServerThread>();
+		holes_vector=new Vector<HoleClass>();
+		
+	}
 	public void createServer() throws Exception
 	{
 		
@@ -99,7 +108,7 @@ public class GameServer
                 	String token[]= input.split(" ");
                 	if(!token[0].equals("READY"))
                 	{
-	                	servers.get(0).out.println("OK");
+                		//servers.get(clientNumber-1).out.println("OK");
 	                	if(clientNumber == 1)
 	                	{
 	                		for(int i =0 ; i<token.length ;i++)
@@ -146,19 +155,89 @@ public class GameServer
             int randomSeed=Board.randomSeed;
             int num_seeds = Integer.parseInt(Start_Screen.seed_selected);
         	int num_holes = Integer.parseInt(Start_Screen.holes_selected);
-        	//Vector<HoleClass> holes_vector=Board.addHolesToBoard(num_holes, num_seeds, randomSeed);
-        	String random_seeds = null;
-            for(int i =0; i<num_holes;i++)
-    		{
-            //	random_seeds=holes_vector.get(i).getNumPieces() + " " + random_seeds;
-    		}
-           
+        	holes_vector=addHolesToServer(num_holes, num_seeds, randomSeed);
+        	String random_seeds = "";
+        	if(randomSeed==1)
+        	{
+	            for(int i =0; i<num_holes;i++)
+	    		{
+	            	if(i==0)
+	            	{
+	            		random_seeds=Integer.toString(holes_vector.get(i).getNumPieces());
+	            	}
+	            	else
+	            	{
+	            		random_seeds=random_seeds + " " + holes_vector.get(i).getNumPieces() ;
+	            	}
+	    		}
+        	}
             String turn = clientNumber == 1 ? "F " : "S ";
             String random = Board.randomSeed == 1 ? "R " : "S ";
             String info = "INFO " + num_holes + " " + num_seeds + " " + "30000 " + turn + random + random_seeds;
             out.println(info);
             out.flush();
         }
+        
+        public static Vector<HoleClass> addHolesToServer(int numHoles, int piecesPerHole, int randomSeed){
+			Vector<Integer> seedAmounts = new Vector<Integer>();
+			
+			for(int i = 0; i < numHoles; i++){
+				seedAmounts.add(piecesPerHole);
+			}
+			
+			if(randomSeed == 1){
+				for(int i = 0; i < numHoles; i++){
+					seedAmounts.set(i,0);
+				}
+				
+				int seedsRemaining = numHoles * piecesPerHole;
+				
+				int currentHole = 0;
+				while(seedsRemaining > 0){
+					Random rand = new Random();
+					int n = rand.nextInt(2);
+					if(n == 1){
+						int previousAmount = seedAmounts.get(currentHole);
+						seedAmounts.set(currentHole, previousAmount + 1);
+						seedsRemaining--;
+					}
+					if(currentHole == numHoles - 1){
+						currentHole = 0;
+					}
+					else{
+						currentHole++;
+					}
+				}
+				
+			}
+			
+			for(int i = 0; i < numHoles; i++){
+				HoleClass holeOne = new HoleClass();
+				holeOne.setSide(1);
+				holeOne.setNumPieces(seedAmounts.get(i));
+				holeOne.setStore(0);
+				holes_vector.add(holeOne);
+			}
+			HoleClass storeOne = new HoleClass();
+			storeOne.setSide(1);
+			storeOne.setNumPieces(0);
+			storeOne.setStore(1);
+			holes_vector.add(storeOne);
+			for(int i = 0; i < numHoles; i++){
+				HoleClass holeTwo = new HoleClass();
+				holeTwo.setSide(2);
+				holeTwo.setNumPieces(seedAmounts.get(i));
+				holeTwo.setStore(0);
+				holes_vector.add(holeTwo);
+			}
+			HoleClass holeTwo = new HoleClass();
+			holeTwo.setSide(2);
+			holeTwo.setNumPieces(0);
+			holeTwo.setStore(1);
+			holes_vector.add(holeTwo);
+			return holes_vector;
+		}
+		
         public void Waiting() 
         {
         	

@@ -59,13 +59,13 @@ public class Board extends JPanel implements MouseListener
 		diameter=1200/(num_holes);
 		gameState = new GameState(num_holes);
 		add(restart_btn);
-		//if(GuiApp.server == false)
+		//if(GuiApp.server == false || Board.randomSeed==0)
 		//{
 			addHolesToBoard(num_holes, num_seeds, randomSeed);
 		//}
 		this.addMouseListener(this);
 		Player2= new JLabel("Player 2 Score");
-		Player2.setBounds(75, 50, 250, 50);
+		Player2.setBounds(105, 50, 250, 50);
 		Player2.setFont(new Font("Serif", Font.BOLD, 40));
 		Player1=new JLabel("Player 1 Score");
 		Player1.setBounds(1375, 50, 250, 50);
@@ -91,19 +91,29 @@ public class Board extends JPanel implements MouseListener
 						try {
 							String msg = GameClient.in.readLine();
 							String tok[] = msg.split(" ");
-		                    if(!tok[0].equals("WELCOME") && !tok[0].equals("INFO") && !tok[0].equals("OK")) 
+							
+		                   if(!tok[0].equals("WELCOME") && !tok[0].equals("INFO") && !tok[0].equals("OK")) 
 		                    {    
 		                     	int totalHoles = Integer.valueOf(num_holes) *2 +2;
 		                    	for(int i=0; i< tok.length; i++)
 		                    	{
 		                    		opponent_turn = true;
-		                    		System.out.println("this" + Integer.valueOf(tok[i]));
-		                    		fullTurn(gameState, Integer.valueOf(tok[i]), totalHoles);
+		                    		System.out.println(msg);
+		                    		if(tok[i].equals("P"))
+		                    		{
+		                    			pieRule(gameState);
+		                    			
+		                    		}
+		                    		else
+		                    		{
+		                    			fullTurn(gameState, Integer.valueOf(tok[i]), totalHoles);
+		                    		}
 		                    		Game.frame.validate();
 		        					Game.frame.repaint();
 		                    	}
+		                    	opponent_turn=false;
 		                    }
-		                    opponent_turn=false;
+		                    
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -224,7 +234,7 @@ public class Board extends JPanel implements MouseListener
 	}
 	public void mouseClicked(MouseEvent e)
 	{
-		if(pie_choice==false && invalid_click == false)
+		if(pie_choice==false && invalid_click == false )
 		{
 			int totalHolesInBoard = num_holes *2 +2;
 			for(int i =0 ; i<(2*num_holes+1);i++)
@@ -240,6 +250,20 @@ public class Board extends JPanel implements MouseListener
 					Game.frame.validate();
 					Game.frame.repaint();
 				}
+			}
+			if(gameState.firstMove == 1 && gameState.currentMove == 2 && GuiApp.server==true && GameClient.player==2 )
+			{
+				gameState.firstMove = 0;
+				Move="P";
+				GameClient.out.println(Move);
+				Move=null;
+				pie_choice=true;
+				Game.frame.validate();
+				Game.frame.repaint();
+				pieFrame(gameState, totalHolesInBoard);
+				Game.frame.validate();
+				Game.frame.repaint();
+				
 			}
 		}
 	/*	if(gameState.getCurrentMove()==1 && GuiApp.AI_First==true)
@@ -258,7 +282,7 @@ public class Board extends JPanel implements MouseListener
 	
 	//this adds the holes to the board
 		//numHoles refers to the number of holes on each side of the board
-		public static Vector<HoleClass> addHolesToBoard(int numHoles, int piecesPerHole, int randomSeed){
+		public void addHolesToBoard(int numHoles, int piecesPerHole, int randomSeed){
 			Vector<Integer> seedAmounts = new Vector<Integer>();
 			
 			for(int i = 0; i < numHoles; i++){
@@ -289,9 +313,9 @@ public class Board extends JPanel implements MouseListener
 					}
 				}
 				
-				for(int i = 0; i < numHoles; i++){
+				/*for(int i = 0; i < numHoles; i++){
 					System.out.println(seedAmounts.get(i));
-				}
+				}*/
 			}
 			
 			for(int i = 0; i < numHoles; i++){
@@ -318,9 +342,38 @@ public class Board extends JPanel implements MouseListener
 			holeTwo.setNumPieces(0);
 			holeTwo.setStore(1);
 			holes.add(holeTwo);
-			return holes;
-		}
+			
 		
+			if(GuiApp.server == true && Board.randomSeed==1)
+			{
+				int k = 0;
+				for(int i =0; i<(2*num_holes+2);i++)
+				{
+					if(i==num_holes)
+					{
+						i++;
+					}
+					else if(i==((num_holes*2)+1))
+					{
+						i++;
+					}
+					else
+					{
+						if(k==GameClient.rands.size())
+						{
+							k=0;
+						}
+						holes.get(i).setNumPieces(GameClient.rands.get(k));
+						k++;
+	
+					}
+					
+				}
+				
+			}
+			
+			
+		}
 		public void nextMove(GameState gameState, boolean result)
 		{
 	
@@ -328,37 +381,35 @@ public class Board extends JPanel implements MouseListener
 			
 			if((gameState.getMoveAgain() == 0) && (result == true))
 			{
-				if(GuiApp.server==true)
+				if(GuiApp.server==true && opponent_turn == false )
 				{
 					GameClient.out.println(Move);
-					try
+					/*try 
 					{
 						System.out.println(GameClient.in.readLine());
-					} 
-					catch (IOException e) 
-					{
-					
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
 						e.printStackTrace();
-					}
+					}*/
 				}
 				if(gameState.getCurrentMove() == 1)
 				{
 					gameState.setCurrentMove(2);
-				/*	if(GuiApp.AI_Second==true)
+					if(GuiApp.AI_Second==true)
 					{
 						AI_Player(gameState);
-					}*/
+					}
 				}
 				else{
 					gameState.setCurrentMove(1);
-					/*if(GuiApp.AI_First==true)
+					if(GuiApp.AI_First==true)
 					{
 						AI_Player(gameState);
-					}*/
+					}
 				}
 				Move=null;
 			}
-			/*else
+			else
 			{
 				if(gameState.getCurrentMove()==1 && GuiApp.AI_First==true)
 				{
@@ -368,7 +419,7 @@ public class Board extends JPanel implements MouseListener
 				{
 					AI_Player(gameState);
 				}
-			}*/
+			}
 		}
 		
 		public static void stealPieces(GameState gameState){
@@ -765,13 +816,18 @@ public class Board extends JPanel implements MouseListener
 					Move=Move + " " + hole;
 				}
 				//This determines who will move next depending on where the last piece ends up
+				if(GuiApp.AI_First==true || GuiApp.AI_Second==true)
+				{
+					Game.frame.paintComponents(getGraphics());
+				}
 				nextMove(gameState, result);
 				endGame(gameState);
 			}
 			
 			//Choice is where we set player two's choice for the pie rule
 			//if it's the first move and if choice == 1, we run the pie rule function
-			if((gameState.firstMove == 1) && (gameState.currentMove == 2))
+			
+			if((gameState.firstMove == 1) && (gameState.currentMove == 2) && GuiApp.server==false)
 			{
 				gameState.firstMove = 0;
 				pie_choice=true;
@@ -830,8 +886,8 @@ public class Board extends JPanel implements MouseListener
 		{
 			 JPanel time_window= new JPanel();
 			 JLabel time_lbl = new JLabel();	
-			 time_window.setBounds(800, 50, 100, 100);
-			 //time_window.setBounds(0, 0, 100, 100);
+			// time_window.setBounds(800, 50, 100, 100);
+			 time_window.setBounds(0, 0, 100, 100);
 			 time_lbl.setFont(new Font("Serif", Font.BOLD, 60));
 			 //time_lbl.setBounds(0, 0, 100, 100);
 			 time_window.add(time_lbl);
