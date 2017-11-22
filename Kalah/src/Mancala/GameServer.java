@@ -106,24 +106,25 @@ public class GameServer
                 	String input = in.readLine();
                 	log((clientNumber == 1 ? "[PLAYER 1] " : "[PLAYER 2] ") + input);
                 	String token[]= input.split(" ");
-                	if(!token[0].equals("READY"))
+                	if(!token[0].equals("READY") && !token[0].equals("OK"))
                 	{
                 		//servers.get(clientNumber-1).out.println("OK");
 	                	if(clientNumber == 1)
 	                	{
 	                		for(int i =0 ; i<token.length ;i++)
 	                		{
-	                			servers.get(1).out.println(token[0]);
+	                			servers.get(1).out.println(token[i]);
 	                		}
+	                		//log(servers.get(1).in.readLine());
 	                		
 	                	}
 	                	else
 	                	{
 	                		for(int i =0 ; i<token.length ;i++)
 	                		{
-	                			servers.get(0).out.println(token[0]);
+	                			servers.get(0).out.println(token[i]);
 	                		}
-	                		
+	                		//log(servers.get(0).in.readLine());
 	                	}
                 	}
                 	
@@ -155,6 +156,7 @@ public class GameServer
             int randomSeed=Board.randomSeed;
             int num_seeds = Integer.parseInt(Start_Screen.seed_selected);
         	int num_holes = Integer.parseInt(Start_Screen.holes_selected);
+        	int seconds = Integer.parseInt(Start_Screen.seconds_in) *1000;
         	holes_vector=addHolesToServer(num_holes, num_seeds, randomSeed);
         	String random_seeds = "";
         	if(randomSeed==1)
@@ -173,7 +175,7 @@ public class GameServer
         	}
             String turn = clientNumber == 1 ? "F " : "S ";
             String random = Board.randomSeed == 1 ? "R " : "S ";
-            String info = "INFO " + num_holes + " " + num_seeds + " " + "30000 " + turn + random + random_seeds;
+            String info = "INFO " + num_holes + " " + num_seeds + " " + seconds+" " + turn + random + random_seeds;
             out.println(info);
             out.flush();
         }

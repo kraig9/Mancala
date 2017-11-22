@@ -263,6 +263,7 @@ public class AI {
 	public static double fullTurnFutureMin(GameState gameState, int hole, int totalHolesInBoard, Vector<HoleClass> nextHoles, int countdown, int currentDepth, int maxDepth, double pruningValue){
 		boolean result = movePiecesFuture(gameState, hole, nextHoles);
 		if(result == true) {
+			
 			stealPiecesFuture(gameState, nextHoles);
 			//This determines who will move next depending on where the last piece ends up
 			endGameFuture(gameState, nextHoles);
@@ -346,6 +347,8 @@ public class AI {
 		
 		double storePercentage = storePieces / (storePieces + sidePieces);
 		double sidePercentage = sidePieces / (storePieces + sidePieces);
+		storePercentage = storePercentage + sidePercentage/2;
+		sidePercentage = sidePercentage/2;
 		
 		
 		if(p1Pieces + p2Pieces == 0) {

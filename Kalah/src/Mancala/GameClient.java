@@ -75,6 +75,10 @@ public class GameClient
         String tokens[]=line.split(" ");
         String seeds = tokens [2];
         String holes = tokens [1];
+               
+        Integer temp2= Integer.parseInt(tokens[3])/1000;
+        Start_Screen.seconds_in=temp2.toString();
+        
         String random = tokens[5];
         String turn=tokens[4];
         if(turn.equals("F"))

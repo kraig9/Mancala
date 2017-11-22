@@ -96,7 +96,8 @@ public class GuiApp extends JFrame
 				Start_Screen.player_selected = Start_Screen.player_menu.getSelectedItem().toString();
 				Start_Screen.opponent_selected = Start_Screen.opponent_menu.getSelectedItem().toString();
 				Start_Screen.holes_selected = Start_Screen.holes_menu.getSelectedItem().toString();
-				
+				Start_Screen.seconds_in = Start_Screen.time_input.getText();
+	
 				String seed =Start_Screen.seed_selected ;
 				String holes = Start_Screen.holes_selected;
 				String player = Start_Screen.player_selected;
@@ -160,13 +161,22 @@ public class GuiApp extends JFrame
 				Start_Screen.player_selected = Start_Screen.player_menu.getSelectedItem().toString();
 				Start_Screen.opponent_selected = Start_Screen.opponent_menu.getSelectedItem().toString();
 				Start_Screen.holes_selected = Start_Screen.holes_menu.getSelectedItem().toString();
-				
+				Start_Screen.seconds_in = Start_Screen.time_input.getSelectedText();
 				String seed =Start_Screen.seed_selected ;
 				String holes = Start_Screen.holes_selected;
 				String player = Start_Screen.player_selected;
 				String opponent = Start_Screen.opponent_selected;
+				
 				if(seed!= "Choose Number Of Seeds" && holes != "Choose Number Of Holes" && player != "Choose a Player" && opponent != "Choose an Opponent")
 				{
+					if(player=="Computer")
+					{
+						AI_First = true;
+					}
+					if(opponent == "Computer")
+					{
+						AI_Second=true;
+					}
 					serverPort = JOptionPane.showInputDialog(
 				            Game.frame,
 				            "What Port Do You Want To Use (Use Port Greater Than 1024):",

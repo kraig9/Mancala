@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
 
 public class Start_Screen extends JPanel
@@ -45,6 +46,9 @@ public class Start_Screen extends JPanel
 	JRadioButton Random_no;
 	ButtonGroup Random_seeds;
 	
+	static JTextField time_input;
+	JLabel time_in;
+	static String seconds_in;
 	/*JMenuBar menu;
 	JMenuItem User2;
 	JMenuItem Computer;*/
@@ -130,6 +134,14 @@ public class Start_Screen extends JPanel
 		Random_seeds.add(Random_yes);
 		Random_seeds.add(Random_no);
 		
+		time_input = new JTextField("0");
+		time_input.setFont(new Font("Serif", Font.BOLD, 20));
+		time_input.setBounds(850, 800, 200, 50);
+		time_in = new JLabel("Enter Time Limit (sec)");
+		time_in.setBounds(650,800,200,50);
+		time_in.setFont(new Font("Serif", Font.BOLD, 20));
+		
+		
 
 		ActionListener RandomActionListener = new ActionListener() {
 		      public void actionPerformed(ActionEvent actionEvent) {
@@ -164,7 +176,8 @@ public class Start_Screen extends JPanel
 		menu.setToolTipText("Choose Opponent!");
 		menu.setLayout(new BoxLayout(menu,BoxLayout.PAGE_AXIS));
 		*/
-		
+		add(time_in);
+		add(time_input);
 		add(start_btn);
 		add(Instruction_btn);
 		add(Client_btn);

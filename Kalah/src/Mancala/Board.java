@@ -34,8 +34,9 @@ public class Board extends JPanel implements MouseListener
 	static boolean invalid_click;
 	static boolean opponent_turn;
 	static int randomSeed=0; 
+	static boolean over;
 	static GameState gameState;
-	static int countdown;
+	static int countdown=0;
 	Timer timer=null;
 	static String Move;
 	/**
@@ -43,12 +44,13 @@ public class Board extends JPanel implements MouseListener
 	 */
 	public Board() 
 	{
+		countdown=Integer.parseInt(Start_Screen.seconds_in);
 		setLayout(null);
-		countdown = 30;
 		Move=null;
 		pie_choice=false;
 		invalid_click=false;
 		opponent_turn = false;
+		over = false;
 		holes = new Vector<HoleClass>();
 		restart_btn=new JButton();
 		restart_btn.setBackground(Color.GRAY);
@@ -86,6 +88,15 @@ public class Board extends JPanel implements MouseListener
 		add(P1_score);
 		add(P2_score);
 		
+		if(GuiApp.AI_First==true)
+		{
+			
+			fullTurn(gameState,0,(num_holes * 2 + 2));
+			Game.frame.validate();
+			Game.frame.repaint();
+			
+		}
+		
 		
 	}
 	public void clientListening()
@@ -95,11 +106,11 @@ public class Board extends JPanel implements MouseListener
 			new Thread(()->{
 					while(true) {
 						try {
-							String msg = GameClient.in.readLine();
-							String tok[] = msg.split(" ");
-							
+							String msg = GameClient.in.readLine(); //move
+							String tok[] = msg.split(" "); 
 		                   if(!tok[0].equals("WELCOME") && !tok[0].equals("INFO") && !tok[0].equals("OK")) 
-		                    {    
+		                    {   
+		                	    //GameClient.out.println("OK");
 		                     	int totalHoles = Integer.valueOf(num_holes) *2 +2;
 		                    	for(int i=0; i< tok.length; i++)
 		                    	{
@@ -260,9 +271,6 @@ public class Board extends JPanel implements MouseListener
 			if(gameState.firstMove == 1 && gameState.currentMove == 2 && GuiApp.server==true && GameClient.player==2 )
 			{
 				gameState.firstMove = 0;
-				Move="P";
-				GameClient.out.println(Move);
-				Move=null;
 				pie_choice=true;
 				Game.frame.validate();
 				Game.frame.repaint();
@@ -357,11 +365,11 @@ public class Board extends JPanel implements MouseListener
 				{
 					if(i==num_holes)
 					{
-						i++;
+						//i++;
 					}
 					else if(i==((num_holes*2)+1))
 					{
-						i++;
+						//i++;
 					}
 					else
 					{
@@ -387,16 +395,14 @@ public class Board extends JPanel implements MouseListener
 			
 			if((gameState.getMoveAgain() == 0) && (result == true))
 			{
+				
+				
+				countdown = Integer.parseInt(Start_Screen.seconds_in);
+				
 				if(GuiApp.server==true && opponent_turn == false )
 				{
 					GameClient.out.println(Move);
-					/*try 
-					{
-						System.out.println(GameClient.in.readLine());
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}*/
+					
 				}
 				if(gameState.getCurrentMove() == 1)
 				{
@@ -826,6 +832,10 @@ public class Board extends JPanel implements MouseListener
 				{
 					Game.frame.paintComponents(getGraphics());
 				}
+				if(over==true)
+				{
+					gameState.gameOver=1;
+				}
 				nextMove(gameState, result);
 				endGame(gameState);
 			}
@@ -840,7 +850,6 @@ public class Board extends JPanel implements MouseListener
 				pieFrame(gameState, totalHolesInBoard);
 			}
 			Scoreboard(gameState);
-			countdown=30;
 		}
 		public static void pieFrame(GameState gameState, int totalHolesInBoard)
 		{
@@ -872,6 +881,9 @@ public class Board extends JPanel implements MouseListener
 					pieRule(gameState);//implement pie rule
 					pie_rule.dispose();
 					pie_choice=false;
+					Move="P";
+					GameClient.out.println(Move);
+					Move=null;
 					
 				}
 			});
@@ -902,22 +914,37 @@ public class Board extends JPanel implements MouseListener
 	
 			ActionListener timecountdown = new ActionListener() {
 		            public void actionPerformed(ActionEvent et) {
-		            	countdown--;
-		            	time_lbl.setText(String.valueOf(countdown));
-		            	if(countdown <= 0)
-		            	{
-		            		timer.stop();
+		            	if(countdown!=1000000000)
+		            	{	
+		            		countdown--;
+			            	time_lbl.setText(String.valueOf(countdown));
+			            	if(countdown <= 0)
+			            	{
+			            		timer.stop();
+			            		over = true;
+			            	}
 		            	}
 		            }
 		        };
-		        timer = new Timer(1000 ,timecountdown);
-		        timer.start();
+		        if(countdown!=1000000000)
+		        {
+		        	timer = new Timer(1000 ,timecountdown);
+			        timer.start();
+		        }
+
 
 		}
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
+			if(GuiApp.AI_First==true && gameState.firstMove==1)
+			{
+				
+				fullTurn(gameState,0,(num_holes * 2 + 2));
+				Game.frame.validate();
+				Game.frame.repaint();
+				
+			}
 		}
 		@Override
 		public void mouseExited(MouseEvent e) {
@@ -926,6 +953,7 @@ public class Board extends JPanel implements MouseListener
 		}
 		@Override
 		public void mousePressed(MouseEvent e) {
+			
 			// TODO Auto-generated method stub
 			
 		}
